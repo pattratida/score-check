@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ครูเอิน · เช็คงานและคะแนน ชกต.2 / ชกต.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Itim&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fff8e1; --card:#ffffff; --ink:#2e2510; --muted:#6f6346; --line:#f0e1ad;
+    --brand:#f2b705; --brand-soft:#fff3c4; --brand-ink:#3b2f00; --brand-dark:#8a5c00;
+    --glow:#ffe89a; --tab:#f9e7a8; --head:#fffaeb; --track:#f5e6b5; --hover:#fbefc6; --box:#d9c78a;
+    --ok:#1f7a4d; --ok-soft:#e5f4ec; --warn:#b45309; --warn-soft:#fdf1e2; --bad:#b42318; --bad-soft:#fdeceb;
+    --radius:14px;
+  }
+  body.theme-c2{
+    --bg:#fff0f6; --line:#f7cfe0; --muted:#7a5566; --brand:#e0508c; --brand-soft:#ffe2ee; --brand-ink:#ffffff; --brand-dark:#a8285f;
+    --glow:#ffc9df; --tab:#fbd5e5; --head:#fff6fa; --track:#f8d7e6; --hover:#fde4ef; --box:#e3a9c2;
+  }
+  body.theme-c3{
+    --bg:#eef6ff; --line:#cfe1f6; --muted:#52657a; --brand:#3487dc; --brand-soft:#e0eefd; --brand-ink:#ffffff; --brand-dark:#1b5a9e;
+    --glow:#c4defa; --tab:#d3e6fb; --head:#f6faff; --track:#d6e6f8; --hover:#e3effc; --box:#9fc2e8;
+  }
+  body{transition:background-color .3s}
+  *{box-sizing:border-box}
+  html{background:#fff}
+  body{min-height:100vh;background:radial-gradient(circle at 8% 4%,var(--glow) 0,transparent 260px) no-repeat,var(--bg);}
+  html,body{margin:0;color:var(--ink);font-family:"Itim","IBM Plex Sans Thai",system-ui,sans-serif;font-size:17px;line-height:1.55}
+  button,input,select{font:inherit;color:inherit}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+  .wrap.wide{max-width:1200px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  h1{font-family:"Itim","IBM Plex Sans Thai",sans-serif;-webkit-text-stroke:.7px currentColor;letter-spacing:.01em;font-size:1.9rem;margin:0;font-weight:700;color:var(--brand-dark);line-height:1.25}
+  .sub{color:var(--muted);margin:2px 0 0}
+  .brand{display:flex;align-items:center;gap:14px}
+  .mascot{width:96px;height:96px;flex:none;animation:bob 3s ease-in-out infinite;transform-origin:50% 100%}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  @media (prefers-reduced-motion:reduce){.mascot{animation:none}}
+  .kru{display:inline-block;background:var(--brand);color:var(--brand-ink);font-family:"Itim",sans-serif;font-weight:400;-webkit-text-stroke:.3px currentColor;font-size:1rem;padding:2px 12px;border-radius:99px;margin-bottom:4px}
+  .tabs{display:flex;gap:4px;background:var(--tab);padding:4px;border-radius:999px}
+  .tabs button{border:0;background:transparent;padding:6px 16px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:500}
+  .tabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card + .card{margin-top:16px}
+  label.lbl{display:block;font-weight:600;margin-bottom:8px}
+  .classes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+  .classopt{position:relative}
+  .classopt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .classopt span{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+  .classopt span::before{content:"";width:18px;height:18px;border-radius:5px;border:2px solid var(--box);flex:none;background:#fff}
+  .classopt input:checked + span{border-color:var(--brand);background:var(--brand-soft)}
+  .classopt input:checked + span::before{background:var(--brand-dark) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat;border-color:var(--brand)}
+  .classopt input:focus-visible + span{outline:3px solid #ffd75e;outline-offset:2px}
+  .classopt small{font-weight:400;color:var(--muted);margin-left:auto}
+  .row{display:flex;gap:10px}
+  .num{flex:1;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1.15rem;background:#fff;min-width:0}
+  .num:focus{outline:none;border-color:var(--brand)}
+  .btn{border:0;background:var(--brand);color:var(--brand-ink);border-radius:12px;padding:12px 20px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand)}
+  .btn.sm{padding:6px 12px;border-radius:9px;font-size:.9rem}
+  .btn.danger{background:var(--bad);color:#fff}
+  .err{color:var(--bad);margin:10px 0 0;min-height:1.4em}
+  .note{color:var(--muted);font-size:.92rem}
+  .who{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .avatar{width:52px;height:52px;border-radius:50%;background:var(--brand-soft);color:var(--brand-dark);display:grid;place-items:center;font-weight:700;font-size:1.2rem;flex:none}
+  .who h2{margin:0;font-size:1.25rem}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .stat{background:var(--bg);border-radius:12px;padding:12px 14px}
+  .stat b{display:block;font-size:1.5rem;line-height:1.2}
+  .stat span{color:var(--muted);font-size:.88rem}
+  .bar{height:8px;background:var(--track);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--brand);border-radius:99px}
+  ul.works{list-style:none;margin:0;padding:0}
+  ul.works li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  ul.works li:first-child{border-top:0}
+  .wtitle{flex:1;min-width:0}
+  .wtitle small{display:block;color:var(--muted)}
+  .chip{font-size:.82rem;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+  .chip.ok{background:var(--ok-soft);color:var(--ok)}
+  .chip.miss{background:var(--bad-soft);color:var(--bad)}
+  .chip.other{background:var(--warn-soft);color:var(--warn)}
+  .score{font-weight:700;min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
+  .score small{color:var(--muted);font-weight:400}
+  .empty{color:var(--muted);text-align:center;padding:20px 0}
+  .banner{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:.93rem}
+  .hidden{display:none!important}
+
+  /* teacher */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar select,.toolbar input{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+  .toolbar .grow{flex:1}
+  .gridwrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table.grid{border-collapse:separate;border-spacing:0;font-size:.92rem;min-width:100%}
+  table.grid th,table.grid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0}
+  table.grid thead{position:sticky;top:0;z-index:4}
+  table.grid thead th{background:var(--head);padding:6px;font-weight:600;vertical-align:middle;text-align:center}
+  table.grid th.cat{background:var(--brand-soft);color:var(--brand-dark);font-size:.9rem;padding:6px 8px;white-space:nowrap}
+  table.grid th small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+  table.grid th.cat small{color:var(--brand-dark);opacity:.75}
+  table.grid th.sub{min-width:62px;padding:0}
+  table.grid th.solo{min-width:96px}
+  table.grid th.totcol{min-width:76px;padding:6px 8px}
+  .subbtn{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;padding:6px 6px 5px;cursor:pointer;line-height:1.3}
+  .subbtn b{font-size:1rem;white-space:nowrap}
+  table.grid th.no{white-space:nowrap}
+  .subbtn .pen{font-size:.72rem;color:var(--muted);opacity:0;transition:opacity .15s}
+  .subbtn:hover{background:var(--hover)} .subbtn:hover .pen,.subbtn:focus-visible .pen{opacity:1}
+  .subbtn:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+  table.grid .gsep{border-left:2px solid var(--box)}
+  table.grid td input{min-width:56px}
+  table.grid th.no,table.grid td.no{position:sticky;left:0;background:var(--head);z-index:1;text-align:center;min-width:44px;padding:6px}
+  table.grid th.nm,table.grid td.nm{position:sticky;left:44px;background:var(--head);z-index:1;text-align:left;min-width:210px;padding:6px 10px;white-space:nowrap}
+  table.grid thead th.no,table.grid thead th.nm{z-index:3}
+  table.grid td.tot{padding:6px 10px;text-align:right;font-weight:600;background:var(--head);font-variant-numeric:tabular-nums}
+  table.grid input{width:100%;border:0;padding:8px;text-align:center;background:transparent;font-variant-numeric:tabular-nums}
+  table.grid input:focus{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-soft)}
+  table.grid input.changed{background:#e6f1ff}
+  table.grid input.over{color:var(--bad);font-weight:700}
+  .colhead{display:flex;flex-direction:column;gap:4px;align-items:center}
+  .colhead .t{font-weight:600;text-align:center;line-height:1.3}
+  .colhead .m{color:var(--muted);font-weight:400;font-size:.82rem}
+  .colhead .acts{display:flex;gap:4px}
+  .iconbtn{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:.8rem;padding:2px 6px;border-radius:6px}
+  .iconbtn:hover{background:var(--hover);color:var(--ink)}
+  .savebar{position:sticky;bottom:0;display:flex;align-items:center;gap:12px;justify-content:flex-end;padding:12px 0 0;background:linear-gradient(transparent,var(--bg) 30%)}
+  .status{color:var(--muted);font-size:.92rem;margin-right:auto}
+  .status.dirty{color:var(--warn);font-weight:600}
+  dialog{border:0;border-radius:16px;padding:22px;max-width:420px;width:calc(100% - 32px);box-shadow:0 20px 50px rgba(0,0,0,.2)}
+  dialog::backdrop{background:rgba(20,20,20,.35)}
+  dialog h3{margin:0 0 14px}
+  dialog .f{margin-bottom:12px}
+  dialog .f input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+  dialog .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr 1fr}
+    .stats .stat:last-child{grid-column:span 2}
+    h1{font-size:1.35rem}
+  }
+  .codewrap{display:flex;gap:8px;align-items:center;background:var(--brand-soft);border:1.5px dashed var(--brand);border-radius:12px;padding:10px 12px}
+  .codewrap code{flex:1;font-size:.95rem;word-break:break-all;font-family:ui-monospace,Menlo,monospace;color:var(--brand-dark)}
+  .linkcard{padding:16px}
+  .linkcard textarea{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:.9rem;resize:vertical;min-width:0}
+  table.grid td.acc{padding:6px 8px;white-space:nowrap;text-align:center}
+  .namegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .namegrid .num{width:100%;font-size:1.05rem}
+  .btn.full{width:100%}
+  @media (max-width:520px){.namegrid{grid-template-columns:1fr}}
+  ul.works li.cathead{border-top:0;padding:16px 0 4px;font-weight:700;color:var(--brand-dark);font-size:.95rem;justify-content:space-between}
+  ul.works li.cathead span{font-weight:500;font-size:.85rem;opacity:.8}
+  ul.works li.cathead + li{border-top:0}
+  .wtitle small{font-size:.85rem;line-height:1.45;margin-top:2px}
+  ul.works li.sep{border-top:2px solid var(--line);margin-top:8px;padding-top:16px}
+  .who h2,.stat b,ul.works li.cathead{-webkit-text-stroke:.25px currentColor}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header>
+    <div class="brand">
+      <svg class="mascot" viewBox="0 0 140 140" role="img" aria-label="น้องลูกเจี๊ยบใส่หมวกรับปริญญา">
+  <defs>
+    <radialGradient id="mBody" cx="42%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#fff6b8"/>
+      <stop offset=".55" stop-color="#ffdd55"/>
+      <stop offset="1" stop-color="#f6b51e"/>
+    </radialGradient>
+    <radialGradient id="mWing" cx="40%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffe680"/>
+      <stop offset="1" stop-color="#f2a915"/>
+    </radialGradient>
+    <radialGradient id="mBlush" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ff8fa3" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff8fa3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mBeak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb347"/>
+      <stop offset="1" stop-color="#f07f1a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- shadow -->
+  <ellipse cx="70" cy="128" rx="34" ry="5" fill="#a07400" opacity=".15"/>
+
+  <!-- feet -->
+  <path d="M55 120 q-6 6 -2 7 q3 0 4 -3 q1 4 4 3 q3 -1 0 -7z" fill="#f28c28"/>
+  <path d="M85 120 q6 6 2 7 q-3 0 -4 -3 q-1 4 -4 3 q-3 -1 0 -7z" fill="#f28c28"/>
+
+  <!-- left wing (resting) -->
+  <path d="M30 82 C18 86 18 102 30 105 C36 107 40 100 38 92 Z" fill="url(#mWing)"/>
+
+  <!-- body -->
+  <ellipse cx="70" cy="80" rx="46" ry="43" fill="url(#mBody)"/>
+  <!-- belly sheen -->
+  <ellipse cx="70" cy="102" rx="22" ry="14" fill="#fff8d0" opacity=".6"/>
+  <!-- top gloss -->
+  <ellipse cx="52" cy="52" rx="12" ry="7" fill="#fff" opacity=".55" transform="rotate(-30 52 52)"/>
+
+  <!-- right wing (waving) -->
+  <g transform="translate(-7 2) rotate(-28 112 82)">
+    <path d="M112 80 C126 72 134 84 126 94 C120 101 112 98 110 92 Z" fill="url(#mWing)"/>
+  </g>
+
+  <!-- head tuft -->
+  <path d="M66 38 C60 26 64 20 70 24 C70 30 69 34 70 38 Z" fill="#ffcf33"/>
+  <path d="M70 38 C72 24 80 20 83 26 C79 29 75 33 72 39 Z" fill="#ffd94d"/>
+
+  <!-- eyes -->
+  <ellipse cx="54" cy="74" rx="7.5" ry="9" fill="#2b1d0e"/>
+  <ellipse cx="86" cy="74" rx="7.5" ry="9" fill="#2b1d0e"/>
+  <circle cx="56.5" cy="70.5" r="3" fill="#fff"/>
+  <circle cx="88.5" cy="70.5" r="3" fill="#fff"/>
+  <circle cx="51.8" cy="78.5" r="1.4" fill="#fff" opacity=".9"/>
+  <circle cx="83.8" cy="78.5" r="1.4" fill="#fff" opacity=".9"/>
+
+  <!-- blush -->
+  <ellipse cx="42" cy="88" rx="9" ry="5.5" fill="url(#mBlush)"/>
+  <ellipse cx="98" cy="88" rx="9" ry="5.5" fill="url(#mBlush)"/>
+
+  <!-- beak -->
+  <path d="M63 84 Q70 79 77 84 Q70 92 63 84 Z" fill="url(#mBeak)"/>
+  <path d="M64.5 84.3 Q70 86 75.5 84.3" stroke="#d96a10" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- graduation cap -->
+  <g transform="rotate(-12 74 34)">
+    <path d="M58 36 h32 v7 q-16 6 -32 0 z" fill="#3a3f63"/>
+    <path d="M74 22 L100 32 L74 42 L48 32 Z" fill="#4a5080"/>
+    <path d="M74 22 L100 32 L74 42 L48 32 Z" fill="none" stroke="#3a3f63" stroke-width="1.2" stroke-linejoin="round"/>
+    <circle cx="74" cy="32" r="2" fill="#ffcc33"/>
+    <path d="M74 32 Q92 34 96 44" stroke="#ffcc33" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M94 43 l4 0 l1 8 l-6 0 z" fill="#ffcc33"/>
+  </g>
+
+  <!-- sparkles -->
+  <path d="M120 40 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#ffffff" stroke="#f2b705" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M18 56 l1.4 3.4 3.4 1.4 -3.4 1.4 -1.4 3.4 -1.4 -3.4 -3.4 -1.4 3.4 -1.4z" fill="#ffd34d"/>
+</svg>
+      <div>
+        <span class="kru">ครูเอิน</span>
+        <h1>เช็คงานและคะแนน</h1>
+        <p class="sub">ชกต.2 และ ชกต.3</p>
+      </div>
+    </div>
+    <div class="tabs hidden" id="tabs">
+      <button class="on" data-view="student">นักเรียน</button>
+      <button data-view="teacher">สำหรับครู</button>
+    </div>
+  </header>
+
+  <div id="dbBanner" class="banner hidden"></div>
+
+  <!-- ===== Student view ===== -->
+  <section id="studentView">
+    <form class="card" id="lookup" autocomplete="off">
+      <p class="note" style="margin:0 0 14px">พิมพ์ชื่อและนามสกุลของตัวเองให้ตรงกับรายชื่อในห้อง ไม่ต้องใส่คำนำหน้า</p>
+      <div class="namegrid">
+        <div><label class="lbl" for="fn">ชื่อ</label><input class="num" id="fn" placeholder="ชื่อจริง" autocomplete="off"></div>
+        <div><label class="lbl" for="ln">นามสกุล</label><input class="num" id="ln" placeholder="นามสกุล" autocomplete="off"></div>
+      </div>
+      <button class="btn full" type="submit" id="lookupBtn">ดูคะแนน</button>
+      <p class="err" id="err"></p>
+    </form>
+    <div class="card hidden" id="result"></div>
+  </section>
+
+  <!-- ===== Teacher view ===== -->
+  <section id="teacherView" class="hidden">
+    <div class="toolbar">
+      <select id="tClass">
+        <option value="c2">ชกต.2</option>
+        <option value="c3">ชกต.3</option>
+      </select>
+      
+      <span class="grow"></span>
+      <button class="btn sm ghost" id="addWork">+ เพิ่มงาน / การสอบ</button>
+    </div>
+
+
+    <p class="note" style="margin:14px 0 12px">ช่องว่าง = ยังไม่ส่ง · พิมพ์ตัวเลขเป็นคะแนน หรือพิมพ์ข้อความสั้น ๆ เช่น “รอตรวจ” “ขาดสอบ” · คัดลอกคะแนนทั้งคอลัมน์จาก Excel/Google Sheets แล้ววางที่ช่องแรกได้เลย</p>
+    <div class="gridwrap"><table class="grid" id="grid"></table></div>
+    <div class="savebar">
+      <span class="status" id="saveStatus">บันทึกแล้ว</span>
+      <button class="btn ghost sm" id="resync" title="ใช้เมื่อนักเรียนบอกว่าคะแนนไม่ขึ้น">ส่งคะแนนให้ทุกคนอีกครั้ง</button>
+      <button class="btn ghost sm" id="discard" disabled>ยกเลิกการแก้ไข</button>
+      <button class="btn" id="save" disabled>บันทึกคะแนน</button>
+    </div>
+  </section>
+</div>
+
+<dialog id="workDlg">
+  <form method="dialog" id="workForm">
+    <h3 id="workDlgTitle">เพิ่มงาน / การสอบ</h3>
+    <div class="f"><label class="lbl" for="wTitle">ชื่องาน</label><input id="wTitle" required placeholder="เช่น สอบกลางภาค, ใบงานที่ 1"></div>
+    <div class="f"><label class="lbl" for="wCat">หมวด (ไม่บังคับ)</label><input id="wCat" placeholder="เช่น งานกลุ่ม"></div>
+    <div class="f"><label class="lbl" for="wShort">ชื่อย่อบนหัวตาราง (ไม่บังคับ)</label><input id="wShort" placeholder="เว้นว่าง = ใช้เลข 1, 2, 3 ตามลำดับในหมวด"></div>
+    <div class="f"><label class="lbl" for="wDesc">รายละเอียดงาน (ไม่บังคับ)</label><textarea id="wDesc" rows="3" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;resize:vertical"></textarea></div>
+    <div class="f"><label class="lbl" for="wMax">คะแนนเต็ม</label><input id="wMax" type="number" min="0" step="any" required placeholder="เช่น 20"></div>
+    <div class="acts">
+      <button type="button" class="btn danger sm hidden" id="wDelete">ลบงานนี้</button>
+      <span style="flex:1"></span>
+      <button type="button" class="btn ghost sm" id="wCancel">ยกเลิก</button>
+      <button type="submit" class="btn sm" id="wOk">ตกลง</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+  const CLASS_NAME = {c2:"ชกต.2", c3:"ชกต.3"};
+  const SALT = "kru-earn|v1|";
+  const state = {
+    db:null, user:null, canEdit:false,
+    data:{c2:null, c3:null}, loaded:{c2:false, c3:false},
+    draft:null, draftClass:"c2", dirty:false, saving:false
+  };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const fmt = n => (Math.round(n*100)/100).toLocaleString("th-TH");
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const show = (id, on) => $(id).classList.toggle("hidden", !on);
+  const setTheme = c => { document.body.classList.remove("theme-c2","theme-c3"); if(c) document.body.classList.add("theme-"+c); };
+  const clsKey = name => ({"ชกต.2":"c2","ชกต.3":"c3"})[name] || "";
+
+  /* ---------- name → private path ---------- */
+  function normName(s){
+    s = String(s || "").normalize("NFC");
+    s = s.replace(/[\s​‌‍ ﻿.]+/g, "");
+    s = s.replace(/ํา/g, "ำ").replace(/เเ/g, "แ");
+    s = s.replace(/^(เด็กชาย|เด็กหญิง|ดช|ดญ|นางสาว|นส|นาย|นาง)/, "");
+    return s;
+  }
+  // compact SHA-256 (same result on every device)
+  function sha256(str){
+    const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    const bytes = new TextEncoder().encode(str);
+    const l = bytes.length, nBlocks = ((l + 9 + 63) >> 6);
+    const w = new Uint32Array(nBlocks * 16);
+    for(let i=0;i<l;i++) w[i>>2] |= bytes[i] << (24 - (i&3)*8);
+    w[l>>2] |= 0x80 << (24 - (l&3)*8);
+    w[nBlocks*16-1] = l * 8;
+    let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    const W = new Uint32Array(64), r = (x,n) => (x>>>n)|(x<<(32-n));
+    for(let b=0;b<nBlocks;b++){
+      for(let t=0;t<16;t++) W[t]=w[b*16+t];
+      for(let t=16;t<64;t++){ const s0=r(W[t-15],7)^r(W[t-15],18)^(W[t-15]>>>3), s1=r(W[t-2],17)^r(W[t-2],19)^(W[t-2]>>>10); W[t]=(W[t-16]+s0+W[t-7]+s1)|0; }
+      let [a,bb,c,d,e,f,g,h]=H;
+      for(let t=0;t<64;t++){
+        const S1=r(e,6)^r(e,11)^r(e,25), ch=(e&f)^(~e&g), t1=(h+S1+ch+K[t]+W[t])|0;
+        const S0=r(a,2)^r(a,13)^r(a,22), mj=(a&bb)^(a&c)^(bb&c), t2=(S0+mj)|0;
+        h=g; g=f; f=e; e=(d+t1)|0; d=c; c=bb; bb=a; a=(t1+t2)|0;
+      }
+      H=[(H[0]+a)|0,(H[1]+bb)|0,(H[2]+c)|0,(H[3]+d)|0,(H[4]+e)|0,(H[5]+f)|0,(H[6]+g)|0,(H[7]+h)|0];
+    }
+    return H.map(x => (x>>>0).toString(16).padStart(8,"0")).join("");
+  }
+  const pathFor = fullName => "p/" + sha256(SALT + normName(fullName)) + "/d/s";
+
+  function normalise(raw){
+    const d = raw ? clone(raw) : {};
+    d.students = Array.isArray(d.students) ? d.students : [];
+    d.assignments = Array.isArray(d.assignments) ? d.assignments : [];
+    d.scores = (d.scores && typeof d.scores === "object") ? d.scores : {};
+    delete d.links;
+    return d;
+  }
+  function showBanner(t){ const b=$("dbBanner"); b.textContent=t; b.classList.remove("hidden"); }
+  function hideBanner(){ $("dbBanner").classList.add("hidden"); }
+
+  /* ================= init ================= */
+  async function init(){
+    let db = null, user = null;
+    try { db = await window.claude?.use("db"); } catch(e){}
+    try { user = await window.claude?.use("user"); } catch(e){}
+    state.db = db; state.user = user;
+    try { state.canEdit = !!(user && (user.isOwner() || user.canEdit())); } catch(e){}
+    if(!db){ showBanner("ยังเชื่อมต่อระบบคะแนนไม่ได้ กรุณาเข้าสู่ระบบ claude.ai แล้วเปิดลิงก์นี้อีกครั้ง"); return; }
+    if(state.canEdit){
+      $("tabs").classList.remove("hidden");
+      initTeacherData();
+      switchView("teacher");
+    }
+  }
+
+  /* ================= student ================= */
+  let unsub = null, unsubInfo = null, infoWatch = "", current = null; const infoCache = {};
+  function renderCurrent(){
+    const {g, info} = current;
+    const asg = (info && Array.isArray(info.assignments)) ? info.assignments : (g.assignments || []);
+    renderResult({name:g.name, no:g.no, clsName:g.clsName || "", assignments:asg, my:g.scores || {}});
+  }
+  $("lookup").addEventListener("submit", e => {
+    e.preventDefault();
+    const err = $("err"); err.textContent = "";
+    const fn = $("fn").value.trim(), ln = $("ln").value.trim();
+    if(!fn || !ln){ err.textContent = "กรุณากรอกทั้งชื่อและนามสกุล"; return; }
+    if(!state.db){ err.textContent = "ยังเชื่อมต่อระบบคะแนนไม่ได้ กรุณาเข้าสู่ระบบ claude.ai ก่อน"; return; }
+    if(unsub){ unsub(); unsub = null; }
+    const btn = $("lookupBtn"); btn.disabled = true; btn.textContent = "กำลังค้นหา…";
+    let done = false;
+    const timer = setTimeout(() => { if(!done){ btn.disabled=false; btn.textContent="ดูคะแนน"; err.textContent = "ระบบตอบช้า กรุณาลองใหม่อีกครั้ง"; } }, 10000);
+    unsub = state.db.doc(pathFor(fn + ln)).onSnapshot(snap => {
+      if(snap.metadata.fromCache && !snap.exists) return;
+      done = true; clearTimeout(timer); btn.disabled = false; btn.textContent = "ดูคะแนน";
+      if(snap.exists){
+        const g = snap.data(); err.textContent = "";
+        const ck = clsKey(g.clsName);
+        setTheme(ck);
+        current = {g, info: infoCache[ck] || null};
+        renderCurrent();
+        if(ck && infoWatch !== ck){
+          if(unsubInfo) unsubInfo();
+          infoWatch = ck;
+          unsubInfo = state.db.doc("p/" + ck).onSnapshot(is => {
+            infoCache[ck] = is.exists ? is.data() : null;
+            if(current && clsKey(current.g.clsName) === ck){ current.info = infoCache[ck]; renderCurrent(); }
+          }, () => {});
+        }
+      } else {
+        show("result", false); setTheme(""); current = null;
+        err.textContent = "ไม่พบชื่อนี้ ลองตรวจตัวสะกดชื่อ–นามสกุลอีกครั้ง ถ้ายังไม่เจอให้แจ้งครูเอิน";
+      }
+    }, er => {
+      done = true; clearTimeout(timer); btn.disabled = false; btn.textContent = "ดูคะแนน";
+      err.textContent = "ค้นหาไม่สำเร็จ (" + er.code + ") กรุณาลองใหม่";
+    });
+  });
+
+  function cellInfo(v){
+    if(v === undefined || v === null || v === "") return {kind:"miss"};
+    if(typeof v === "number") return {kind:"ok", n:v};
+    return {kind:"other", text:String(v)};
+  }
+  function renderResult(r){
+    const box = $("result");
+    let got=0, full=0, done=0, miss=0;
+    const items = (r.assignments || []).map(a => {
+      const info = cellInfo(r.my[a.id]);
+      if(info.kind === "ok"){ got += info.n; full += Number(a.max)||0; done++; }
+      else if(info.kind === "miss") miss++; else done++;
+      return {a, info};
+    });
+    const pct = full ? Math.min(100, Math.round(got/full*100)) : 0;
+    const initial = (String(r.name).replace(/^(นาย|นางสาว|นาง|เด็กชาย|เด็กหญิง)/,"").trim()[0]) || "?";
+    let html = `<div class="who"><div class="avatar">${esc(initial)}</div>
+        <div><h2>${esc(r.name)}</h2><div class="note">${esc(r.clsName)}${r.no ? " · เลขที่ " + esc(r.no) : ""}</div></div></div>`;
+    if(!items.length){
+      html += `<div class="empty">ยังไม่มีงานหรือคะแนนประกาศในตอนนี้</div>`;
+    } else {
+      html += `
+      <div class="stats">
+        <div class="stat"><b>${fmt(got)}<small style="font-size:.9rem;color:var(--muted)"> / ${fmt(full)}</small></b><span>คะแนนรวม (งานที่ตรวจแล้ว)</span>
+          <div class="bar"><i style="width:${pct}%"></i></div></div>
+        <div class="stat"><b style="color:var(--ok)">${done}</b><span>ส่งแล้ว จาก ${items.length} งาน</span></div>
+        <div class="stat"><b style="color:${miss?'var(--bad)':'var(--ok)'}">${miss}</b><span>${miss ? "งานค้างส่ง" : "ไม่มีงานค้าง 🎉"}</span></div>
+      </div>
+      <ul class="works">` + items.map(({a,info}, i) => {
+        const cl = catLabel(a.cat);
+        const head = cl && (i === 0 || catLabel(items[i-1].a.cat) !== cl)
+          ? `<li class="cathead">${esc(cl)}<span>เต็ม ${fmt(items.filter(x => catLabel(x.a.cat) === cl).reduce((t,x) => t + (Number(x.a.max)||0), 0))}</span></li>` : "";
+        const mx = fmt(Number(a.max)||0);
+        let chip, score;
+        if(info.kind==="ok"){ chip=`<span class="chip ok">ส่งแล้ว</span>`; score=`${fmt(info.n)} <small>/ ${mx}</small>`; }
+        else if(info.kind==="miss"){ chip=`<span class="chip miss">ยังไม่ส่ง</span>`; score=`– <small>/ ${mx}</small>`; }
+        else { chip=`<span class="chip other">${esc(info.text)}</span>`; score=`– <small>/ ${mx}</small>`; }
+        const sep = !cl && i > 0 && catLabel(items[i-1].a.cat) ? ' class="sep"' : "";
+        return head + `<li${sep}><div class="wtitle">${esc(a.title)}${a.desc ? `<small>${esc(a.desc)}</small>` : ""}</div>${chip}<div class="score">${score}</div></li>`;
+      }).join("") + `</ul>`;
+    }
+    box.innerHTML = html;
+    show("result", true);
+  }
+
+  /* ================= tabs ================= */
+  function switchView(v){
+    document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x.dataset.view===v));
+    const t = v === "teacher";
+    setTheme(t ? state.draftClass : "");
+    show("studentView", !t); show("teacherView", t);
+    $("wrap").classList.toggle("wide", t);
+  }
+  $("tabs").addEventListener("click", e => { const b = e.target.closest("button[data-view]"); if(b) switchView(b.dataset.view); });
+
+  /* ================= teacher ================= */
+  function initTeacherData(){
+    let timer = setTimeout(() => showBanner("กำลังเชื่อมต่อฐานข้อมูลนานกว่าปกติ ข้อมูลอาจยังไม่ขึ้น"), 10000);
+    let pending = 2;
+    ["c2","c3"].forEach(c => {
+      state.db.doc("classes/"+c).onSnapshot(snap => {
+        state.data[c] = normalise(snap.exists ? snap.data() : null);
+        if(!snap.metadata.fromCache && !state.loaded[c]){ state.loaded[c] = true; if(--pending === 0){ clearTimeout(timer); hideBanner(); } }
+        if(c === state.draftClass && !state.dirty && !state.saving){ state.draft = clone(state.data[c]); renderGrid(); }
+      }, err => { clearTimeout(timer); showBanner("โหลดข้อมูลคะแนนไม่สำเร็จ (" + esc(err.code) + ")"); });
+    });
+  }
+
+  $("tClass").addEventListener("change", e => {
+    if(state.dirty){ setStatus("มีการแก้ไขที่ยังไม่บันทึก — กดบันทึกหรือยกเลิกก่อนเปลี่ยนห้อง", true); e.target.value = state.draftClass; return; }
+    state.draftClass = e.target.value; setTheme(state.draftClass);
+    state.draft = state.data[state.draftClass] ? clone(state.data[state.draftClass]) : null;
+    renderGrid();
+  });
+
+  function setStatus(t, warn){ const s=$("saveStatus"); s.textContent=t; s.classList.toggle("dirty", !!warn); }
+  function markDirty(){ state.dirty = true; $("save").disabled = false; $("discard").disabled = false; setStatus("มีการแก้ไขที่ยังไม่บันทึก", true); }
+  function markClean(msg){ state.dirty = false; $("save").disabled = true; $("discard").disabled = true; setStatus(msg || "บันทึกแล้ว", false); }
+
+  function parseCell(raw){
+    const t = String(raw).trim();
+    if(t === "" || t === "-") return "";
+    const n = Number(t.replace(/,/g,""));
+    return Number.isFinite(n) ? n : t.slice(0,20);
+  }
+  function catLabel(c){ return String(c || "").replace(/\s*\(\s*\d+\s*\)\s*$/, ""); }
+  function catGroups(list){
+    const out = [];
+    list.forEach((a, i) => {
+      const c = catLabel(a.cat);
+      const last = out[out.length-1];
+      if(c && last && last.cat === c) { last.items.push({a,i}); last.max += Number(a.max)||0; }
+      else out.push({cat:c, items:[{a,i}], max:Number(a.max)||0});
+    });
+    return out;
+  }
+  function rowTotal(no){
+    const d = state.draft, my = d.scores[String(no)] || {};
+    let got=0, full=0;
+    d.assignments.forEach(a => { const v=my[a.id]; if(typeof v==="number"){ got+=v; full+=Number(a.max)||0; } });
+    return full ? `${fmt(got)}/${fmt(full)}` : "–";
+  }
+
+  function renderGrid(){
+    const g = $("grid"), d = state.draft;
+    if(!d){ g.innerHTML = `<tr><td class="empty" style="padding:30px">กำลังโหลดข้อมูล…</td></tr>`; return; }
+    if(!d.students.length){ g.innerHTML = `<tr><td class="empty" style="padding:30px">ยังไม่มีรายชื่อนักเรียนในห้องนี้</td></tr>`; return; }
+    const orig = state.data[state.draftClass] || normalise(null);
+    let h;
+    if(!d.assignments.length){
+      h = `<thead><tr><th class="no">เลขที่</th><th class="nm">ชื่อ – สกุล</th><th style="min-width:260px">ยังไม่มีงาน — กด “+ เพิ่มงาน / การสอบ”</th></tr></thead><tbody>`;
+    } else {
+      const groups = catGroups(d.assignments);
+      const total = d.assignments.reduce((t,a) => t + (Number(a.max)||0), 0);
+      let r1 = `<tr><th class="no" rowspan="2">เลขที่</th><th class="nm" rowspan="2">ชื่อ – สกุล</th>`, r2 = `<tr>`;
+      groups.forEach((gp, gi) => {
+        const sep = gi ? " gsep" : "";
+        if(gp.cat){
+          r1 += `<th class="cat${sep}" colspan="${gp.items.length}">${esc(gp.cat)}<small>เต็ม ${fmt(gp.max)}</small></th>`;
+          gp.items.forEach(({a,i}, k) => {
+            r2 += `<th class="sub${k?"":sep}" title="${esc(a.title + (a.desc ? " — " + a.desc : ""))}"><button class="subbtn" data-edit="${i}"><b>${esc(a.short || String(k+1))}</b><small>เต็ม ${fmt(Number(a.max)||0)}</small><span class="pen">แก้ไข</span></button></th>`;
+          });
+        } else {
+          const {a,i} = gp.items[0];
+          r1 += `<th class="sub solo${sep}" rowspan="2" title="${esc(a.desc || "")}"><button class="subbtn" data-edit="${i}"><b>${esc(a.short || a.title)}</b><small>เต็ม ${fmt(Number(a.max)||0)}</small><span class="pen">แก้ไข</span></button></th>`;
+        }
+      });
+      r1 += `<th class="totcol gsep" rowspan="2">รวม<small>เต็ม ${fmt(total)}</small></th></tr>`;
+      h = `<thead>${r1}${r2}</tr></thead><tbody>`;
+    }
+    d.students.forEach((s, r) => {
+      const key = String(s.no), my = d.scores[key] || {}, om = orig.scores[key] || {};
+      h += `<tr><td class="no">${esc(s.no)}</td><td class="nm">${esc(s.name)}</td>`;
+      d.assignments.forEach((a, c) => {
+        const v = my[a.id] ?? "", ov = om[a.id] ?? "";
+        const gs = c > 0 && (a.cat || "") !== (d.assignments[c-1].cat || "") || (c > 0 && !a.cat);
+        const over = typeof v==="number" && v > (Number(a.max)||0);
+        h += `<td${gs ? ' class="gsep"' : ""}><input data-r="${r}" data-c="${c}" value="${esc(v)}" class="${v!==ov?'changed':''} ${over?'over':''}" aria-label="${esc(s.name)} ${esc(a.title)}"></td>`;
+      });
+      h += d.assignments.length ? `<td class="tot gsep" data-tot="${r}">${rowTotal(s.no)}</td>` : `<td></td>`;
+      h += `</tr>`;
+    });
+    g.innerHTML = h + `</tbody>`;
+  }
+
+  function setCell(r, c, raw){
+    const d = state.draft, s = d.students[r], a = d.assignments[c];
+    if(!s || !a) return;
+    const key = String(s.no), v = parseCell(raw);
+    d.scores[key] = d.scores[key] || {};
+    if(v === "") delete d.scores[key][a.id]; else d.scores[key][a.id] = v;
+    const orig = (state.data[state.draftClass]?.scores[key] || {})[a.id] ?? "";
+    const inp = $("grid").querySelector(`input[data-r="${r}"][data-c="${c}"]`);
+    if(inp){
+      if(document.activeElement !== inp) inp.value = v;
+      inp.classList.toggle("changed", v !== orig);
+      inp.classList.toggle("over", typeof v==="number" && v > (Number(a.max)||0));
+    }
+    const tot = $("grid").querySelector(`[data-tot="${r}"]`); if(tot) tot.textContent = rowTotal(s.no);
+  }
+
+  $("grid").addEventListener("input", e => { const t=e.target; if(t.tagName!=="INPUT") return; setCell(+t.dataset.r, +t.dataset.c, t.value); markDirty(); });
+  $("grid").addEventListener("change", e => { const t=e.target; if(t.tagName!=="INPUT") return; t.value = parseCell(t.value); });
+  $("grid").addEventListener("paste", e => {
+    const t = e.target; if(t.tagName !== "INPUT") return;
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if(!/[\n\t]/.test(text.trim())) return;
+    e.preventDefault();
+    const rows = text.replace(/\r/g,"").replace(/\n$/,"").split("\n");
+    const r0 = +t.dataset.r, c0 = +t.dataset.c;
+    rows.forEach((line, i) => line.split("\t").forEach((cell, j) => {
+      setCell(r0+i, c0+j, cell);
+      const inp = $("grid").querySelector(`input[data-r="${r0+i}"][data-c="${c0+j}"]`); if(inp) inp.value = parseCell(cell);
+    }));
+    markDirty();
+  });
+  $("grid").addEventListener("keydown", e => {
+    const t = e.target; if(t.tagName !== "INPUT") return;
+    let r = +t.dataset.r, c = +t.dataset.c;
+    if(e.key === "Enter" || e.key === "ArrowDown") r++; else if(e.key === "ArrowUp") r--; else return;
+    e.preventDefault();
+    const n = $("grid").querySelector(`input[data-r="${r}"][data-c="${c}"]`); if(n){ n.focus(); n.select(); }
+  });
+  $("grid").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if(b) openWork(+b.dataset.edit); });
+
+  /* ---- save & publish each student's own page ---- */
+  function payloadFor(d, cls, st){
+    return {name: st.name, no: st.no, clsName: CLASS_NAME[cls], scores: d.scores[String(st.no)] || {}};
+  }
+  async function writeWithRetry(fn){
+    for(let i=0;i<4;i++){
+      try { await fn(); return true; }
+      catch(err){
+        if(err && (err.code === "resource_exhausted" || err.code === "unavailable")){ await sleep(700*(i+1) + Math.random()*300); continue; }
+        return false;
+      }
+    }
+    return false;
+  }
+  async function publishToStudents(cls, oldD, newD, force){
+    const jobs = [];
+    if(force || JSON.stringify(oldD.assignments) !== JSON.stringify(newD.assignments))
+      jobs.push(() => state.db.doc("p/" + cls).set({clsName: CLASS_NAME[cls], assignments: newD.assignments, updatedAt: new Date().toISOString()}));
+    newD.students.forEach(st => {
+      const p = payloadFor(newD, cls, st);
+      const prev = oldD.students.find(x => x.no === st.no);
+      const same = !force && prev && prev.name === st.name && JSON.stringify(payloadFor(oldD, cls, prev)) === JSON.stringify(p);
+      if(!same) jobs.push(() => state.db.doc(pathFor(st.name)).set({...p, updatedAt: new Date().toISOString()}));
+    });
+    let fail = 0;
+    for(let i=0;i<jobs.length;i++){
+      setStatus(`กำลังส่งคะแนนให้นักเรียน ${i+1}/${jobs.length}…`, false);
+      if(!(await writeWithRetry(jobs[i]))) fail++;
+      await sleep(120);
+    }
+    return {n: jobs.length, fail};
+  }
+  async function save(force){
+    if(!state.draft || state.saving) return;
+    const cls = state.draftClass;
+    const oldD = clone(state.data[cls] || normalise(null)), newD = clone(state.draft);
+    state.saving = true; $("save").disabled = true; $("resync").disabled = true; setStatus("กำลังบันทึก…", false);
+    try { await state.db.doc("classes/"+cls).set(newD); }
+    catch(err){
+      state.saving = false; $("save").disabled = false; $("resync").disabled = false;
+      setStatus(err && err.code === "invalid_argument" ? "บันทึกไม่ได้: บัญชีนี้ไม่มีสิทธิ์แก้ไขคะแนน" : "บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง", true);
+      return;
+    }
+    const {n, fail} = await publishToStudents(cls, oldD, newD, force);
+    state.saving = false; $("resync").disabled = false;
+    const t = new Date().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+    markClean(fail ? `บันทึกแล้ว แต่ส่งให้นักเรียนไม่สำเร็จ ${fail} คน — กด “ส่งคะแนนให้ทุกคนอีกครั้ง”` : `บันทึกแล้ว · อัปเดตให้นักเรียน ${n} คน · ${t}`);
+    if(fail) $("saveStatus").classList.add("dirty");
+    state.draft = clone(state.data[cls] || newD); renderGrid();
+  }
+  $("save").addEventListener("click", () => save(false));
+  $("resync").addEventListener("click", () => {
+    if(state.dirty){ setStatus("กด “บันทึกคะแนน” ก่อน แล้วค่อยส่งอีกครั้ง", true); return; }
+    save(true);
+  });
+  $("discard").addEventListener("click", () => {
+    state.draft = state.data[state.draftClass] ? clone(state.data[state.draftClass]) : null;
+    markClean("ยกเลิกการแก้ไขแล้ว"); renderGrid();
+  });
+
+  /* ---- assignment dialog ---- */
+  let editingIdx = -1;
+  function openWork(idx){
+    if(!state.draft) return;
+    editingIdx = idx;
+    const a = idx >= 0 ? state.draft.assignments[idx] : null;
+    $("workDlgTitle").textContent = a ? "แก้ไขงาน" : "เพิ่มงาน / การสอบ";
+    $("wTitle").value = a ? a.title : "";
+    $("wMax").value = a ? a.max : "";
+    $("wCat").value = a ? (a.cat || "") : (state.draft.assignments.at(-1)?.cat || "");
+    $("wDesc").value = a ? (a.desc || "") : "";
+    $("wShort").value = a ? (a.short || "") : "";
+    $("wDelete").classList.toggle("hidden", !a);
+    $("wDelete").textContent = "ลบงานนี้"; $("wDelete").dataset.confirm = "";
+    $("workDlg").showModal(); $("wTitle").focus();
+  }
+  $("addWork").addEventListener("click", () => openWork(-1));
+  $("wCancel").addEventListener("click", () => $("workDlg").close());
+  $("workForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const title = $("wTitle").value.trim(), max = Number($("wMax").value);
+    const cat = $("wCat").value.trim(), desc = $("wDesc").value.trim(), short = $("wShort").value.trim().slice(0,12);
+    if(!title || !Number.isFinite(max) || max < 0) return;
+    if(editingIdx >= 0) Object.assign(state.draft.assignments[editingIdx], {title, max, cat, desc, short});
+    else state.draft.assignments.push({id: "a" + Date.now().toString(36), title, max, cat, desc, short});
+    $("workDlg").close(); markDirty(); renderGrid();
+  });
+  $("wDelete").addEventListener("click", e => {
+    const b = e.currentTarget;
+    if(!b.dataset.confirm){ b.dataset.confirm = "1"; b.textContent = "กดอีกครั้งเพื่อยืนยันลบ"; return; }
+    const a = state.draft.assignments[editingIdx];
+    state.draft.assignments.splice(editingIdx, 1);
+    Object.values(state.draft.scores).forEach(m => { if(m) delete m[a.id]; });
+    $("workDlg").close(); markDirty(); renderGrid();
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
