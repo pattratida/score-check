@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ครูเอิน · เช็คงานและคะแนน ชกต.2 / ชกต.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Itim&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fff8e1; --card:#ffffff; --ink:#2e2510; --muted:#6f6346; --line:#f0e1ad;
+    --brand:#f2b705; --brand-soft:#fff3c4; --brand-ink:#3b2f00; --brand-dark:#8a5c00;
+    --glow:#ffe89a; --tab:#f9e7a8; --head:#fffaeb; --track:#f5e6b5; --hover:#fbefc6; --box:#d9c78a;
+    --ok:#1f7a4d; --ok-soft:#e5f4ec; --warn:#b45309; --warn-soft:#fdf1e2; --bad:#b42318; --bad-soft:#fdeceb;
+    --radius:14px;
+  }
+  body.theme-c2{
+    --bg:#fff0f6; --line:#f7cfe0; --muted:#7a5566; --brand:#e0508c; --brand-soft:#ffe2ee; --brand-ink:#ffffff; --brand-dark:#a8285f;
+    --glow:#ffc9df; --tab:#fbd5e5; --head:#fff6fa; --track:#f8d7e6; --hover:#fde4ef; --box:#e3a9c2;
+  }
+  body.theme-c3{
+    --bg:#eef6ff; --line:#cfe1f6; --muted:#52657a; --brand:#3487dc; --brand-soft:#e0eefd; --brand-ink:#ffffff; --brand-dark:#1b5a9e;
+    --glow:#c4defa; --tab:#d3e6fb; --head:#f6faff; --track:#d6e6f8; --hover:#e3effc; --box:#9fc2e8;
+  }
+  body{transition:background-color .3s}
+  *{box-sizing:border-box}
+  html{background:#fff}
+  body{min-height:100vh;background:radial-gradient(circle at 8% 4%,var(--glow) 0,transparent 260px) no-repeat,var(--bg);}
+  html,body{margin:0;color:var(--ink);font-family:"Itim","IBM Plex Sans Thai",system-ui,sans-serif;font-size:17px;line-height:1.55}
+  button,input,select{font:inherit;color:inherit}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+  .wrap.wide{max-width:1200px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+  h1{font-family:"Itim","IBM Plex Sans Thai",sans-serif;-webkit-text-stroke:.7px currentColor;letter-spacing:.01em;font-size:1.9rem;margin:0;font-weight:700;color:var(--brand-dark);line-height:1.25}
+  .sub{color:var(--muted);margin:2px 0 0}
+  .brand{display:flex;align-items:center;gap:14px}
+  .mascot{width:96px;height:96px;flex:none;animation:bob 3s ease-in-out infinite;transform-origin:50% 100%}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  @media (prefers-reduced-motion:reduce){.mascot{animation:none}}
+  .kru{display:inline-block;background:var(--brand);color:var(--brand-ink);font-family:"Itim",sans-serif;font-weight:400;-webkit-text-stroke:.3px currentColor;font-size:1rem;padding:2px 12px;border-radius:99px;margin-bottom:4px}
+  .tabs{display:flex;gap:4px;background:var(--tab);padding:4px;border-radius:999px}
+  .tabs button{border:0;background:transparent;padding:6px 16px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:500}
+  .tabs button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .card + .card{margin-top:16px}
+  label.lbl{display:block;font-weight:600;margin-bottom:8px}
+  .classes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+  .classopt{position:relative}
+  .classopt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .classopt span{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+  .classopt span::before{content:"";width:18px;height:18px;border-radius:5px;border:2px solid var(--box);flex:none;background:#fff}
+  .classopt input:checked + span{border-color:var(--brand);background:var(--brand-soft)}
+  .classopt input:checked + span::before{background:var(--brand-dark) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat;border-color:var(--brand)}
+  .classopt input:focus-visible + span{outline:3px solid #ffd75e;outline-offset:2px}
+  .classopt small{font-weight:400;color:var(--muted);margin-left:auto}
+  .row{display:flex;gap:10px}
+  .num{flex:1;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1.15rem;background:#fff;min-width:0}
+  .num:focus{outline:none;border-color:var(--brand)}
+  .btn{border:0;background:var(--brand);color:var(--brand-ink);border-radius:12px;padding:12px 20px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--brand-dark);border:1.5px solid var(--brand)}
+  .btn.sm{padding:6px 12px;border-radius:9px;font-size:.9rem}
+  .btn.danger{background:var(--bad);color:#fff}
+  .err{color:var(--bad);margin:10px 0 0;min-height:1.4em}
+  .note{color:var(--muted);font-size:.92rem}
+  .who{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .avatar{width:52px;height:52px;border-radius:50%;background:var(--brand-soft);color:var(--brand-dark);display:grid;place-items:center;font-weight:700;font-size:1.2rem;flex:none}
+  .who h2{margin:0;font-size:1.25rem}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .stat{background:var(--bg);border-radius:12px;padding:12px 14px}
+  .stat b{display:block;font-size:1.5rem;line-height:1.2}
+  .stat span{color:var(--muted);font-size:.88rem}
+  .bar{height:8px;background:var(--track);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--brand);border-radius:99px}
+  ul.works{list-style:none;margin:0;padding:0}
+  ul.works li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+  ul.works li:first-child{border-top:0}
+  .wtitle{flex:1;min-width:0}
+  .wtitle small{display:block;color:var(--muted)}
+  .chip{font-size:.82rem;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+  .chip.ok{background:var(--ok-soft);color:var(--ok)}
+  .chip.miss{background:var(--bad-soft);color:var(--bad)}
+  .chip.other{background:var(--warn-soft);color:var(--warn)}
+  .score{font-weight:700;min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
+  .score small{color:var(--muted);font-weight:400}
+  .empty{color:var(--muted);text-align:center;padding:20px 0}
+  .banner{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:.93rem}
+  .hidden{display:none!important}
+
+  /* teacher */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar select,.toolbar input{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+  .toolbar .grow{flex:1}
+  .gridwrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+  table.grid{border-collapse:separate;border-spacing:0;font-size:.92rem;min-width:100%}
+  table.grid th,table.grid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:0}
+  table.grid thead{position:sticky;top:0;z-index:4}
+  table.grid thead th{background:var(--head);padding:6px;font-weight:600;vertical-align:middle;text-align:center}
+  table.grid th.cat{background:var(--brand-soft);color:var(--brand-dark);font-size:.9rem;padding:6px 8px;white-space:nowrap}
+  table.grid th small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+  table.grid th.cat small{color:var(--brand-dark);opacity:.75}
+  table.grid th.sub{min-width:62px;padding:0}
+  table.grid th.solo{min-width:96px}
+  table.grid th.totcol{min-width:76px;padding:6px 8px}
+  .subbtn{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;width:100%;padding:6px 6px 5px;cursor:pointer;line-height:1.3}
+  .subbtn b{font-size:1rem;white-space:nowrap}
+  table.grid th.no{white-space:nowrap}
+  .subbtn .pen{font-size:.72rem;color:var(--muted);opacity:0;transition:opacity .15s}
+  .subbtn:hover{background:var(--hover)} .subbtn:hover .pen,.subbtn:focus-visible .pen{opacity:1}
+  .subbtn:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+  table.grid .gsep{border-left:2px solid var(--box)}
+  table.grid td input{min-width:56px}
+  table.grid th.no,table.grid td.no{position:sticky;left:0;background:var(--head);z-index:1;text-align:center;min-width:44px;padding:6px}
+  table.grid th.nm,table.grid td.nm{position:sticky;left:44px;background:var(--head);z-index:1;text-align:left;min-width:210px;padding:6px 10px;white-space:nowrap}
+  table.grid thead th.no,table.grid thead th.nm{z-index:3}
+  table.grid td.tot{padding:6px 10px;text-align:right;font-weight:600;background:var(--head);font-variant-numeric:tabular-nums}
+  table.grid input{width:100%;border:0;padding:8px;text-align:center;background:transparent;font-variant-numeric:tabular-nums}
+  table.grid input:focus{outline:2px solid var(--brand);outline-offset:-2px;background:var(--brand-soft)}
+  table.grid input.changed{background:#e6f1ff}
+  table.grid input.over{color:var(--bad);font-weight:700}
+  .colhead{display:flex;flex-direction:column;gap:4px;align-items:center}
+  .colhead .t{font-weight:600;text-align:center;line-height:1.3}
+  .colhead .m{color:var(--muted);font-weight:400;font-size:.82rem}
+  .colhead .acts{display:flex;gap:4px}
+  .iconbtn{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:.8rem;padding:2px 6px;border-radius:6px}
+  .iconbtn:hover{background:var(--hover);color:var(--ink)}
+  .savebar{position:sticky;bottom:0;display:flex;align-items:center;gap:12px;justify-content:flex-end;padding:12px 0 0;background:linear-gradient(transparent,var(--bg) 30%)}
+  .status{color:var(--muted);font-size:.92rem;margin-right:auto}
+  .status.dirty{color:var(--warn);font-weight:600}
+  dialog{border:0;border-radius:16px;padding:22px;max-width:420px;width:calc(100% - 32px);box-shadow:0 20px 50px rgba(0,0,0,.2)}
+  dialog::backdrop{background:rgba(20,20,20,.35)}
+  dialog h3{margin:0 0 14px}
+  dialog .f{margin-bottom:12px}
+  dialog .f input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+  dialog .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+  @media (max-width:520px){
+    .stats{grid-template-columns:1fr 1fr}
+    .stats .stat:last-child{grid-column:span 2}
+    h1{font-size:1.35rem}
+  }
+  .codewrap{display:flex;gap:8px;align-items:center;background:var(--brand-soft);border:1.5px dashed var(--brand);border-radius:12px;padding:10px 12px}
+  .codewrap code{flex:1;font-size:.95rem;word-break:break-all;font-family:ui-monospace,Menlo,monospace;color:var(--brand-dark)}
+  .linkcard{padding:16px}
+  .linkcard textarea{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:.9rem;resize:vertical;min-width:0}
+  table.grid td.acc{padding:6px 8px;white-space:nowrap;text-align:center}
+  .namegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .namegrid .num{width:100%;font-size:1.05rem}
+  .btn.full{width:100%}
+  @media (max-width:520px){.namegrid{grid-template-columns:1fr}}
+  ul.works li.cathead{border-top:0;padding:16px 0 4px;font-weight:700;color:var(--brand-dark);font-size:.95rem;justify-content:space-between}
+  ul.works li.cathead span{font-weight:500;font-size:.85rem;opacity:.8}
+  ul.works li.cathead + li{border-top:0}
+  .wtitle small{font-size:.85rem;line-height:1.45;margin-top:2px}
+  ul.works li.sep{border-top:2px solid var(--line);margin-top:8px;padding-top:16px}
+  .who h2,.stat b,ul.works li.cathead{-webkit-text-stroke:.25px currentColor}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header>
+    <div class="brand">
+      <svg class="mascot" viewBox="0 0 140 140" role="img" aria-label="น้องลูกเจี๊ยบใส่หมวกรับปริญญา">
+  <defs>
+    <radialGradient id="mBody" cx="42%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#fff6b8"/>
+      <stop offset=".55" stop-color="#ffdd55"/>
+      <stop offset="1" stop-color="#f6b51e"/>
+    </radialGradient>
+    <radialGradient id="mWing" cx="40%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#ffe680"/>
+      <stop offset="1" stop-color="#f2a915"/>
+    </radialGradient>
+    <radialGradient id="mBlush" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ff8fa3" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff8fa3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="mBeak" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb347"/>
+      <stop offset="1" stop-color="#f07f1a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- shadow -->
+  <ellipse cx="70" cy="128" rx="34" ry="5" fill="#a07400" opacity=".15"/>
+
+  <!-- feet -->
+  <path d="M55 120 q-6 6 -2 7 q3 0 4 -3 q1 4 4 3 q3 -1 0 -7z" fill="#f28c28"/>
+  <path d="M85 120 q6 6 2 7 q-3 0 -4 -3 q-1 4 -4 3 q-3 -1 0 -7z" fill="#f28c28"/>
+
+  <!-- left wing (resting) -->
+  <path d="M30 82 C18 86 18 102 30 105 C36 107 40 100 38 92 Z" fill="url(#mWing)"/>
+
+  <!-- body -->
+  <ellipse cx="70" cy="80" rx="46" ry="43" fill="url(#mBody)"/>
+  <!-- belly sheen -->
+  <ellipse cx="70" cy="102" rx="22" ry="14" fill="#fff8d0" opacity=".6"/>
+  <!-- top gloss -->
+  <ellipse cx="52" cy="52" rx="12" ry="7" fill="#fff" opacity=".55" transform="rotate(-30 52 52)"/>
+
+  <!-- right wing (waving) -->
+  <g transform="translate(-7 2) rotate(-28 112 82)">
+    <path d="M112 80 C126 72 134 84 126 94 C120 101 112 98 110 92 Z" fill="url(#mWing)"/>
+  </g>
+
+  <!-- head tuft -->
+  <path d="M66 38 C60 26 64 20 70 24 C70 30 69 34 70 38 Z" fill="#ffcf33"/>
+  <path d="M70 38 C72 24 80 20 83 26 C79 29 75 33 72 39 Z" fill="#ffd94d"/>
+
+  <!-- eyes -->
+  <ellipse cx="54" cy="74" rx="7.5" ry="9" fill="#2b1d0e"/>
+  <ellipse cx="86" cy="74" rx="7.5" ry="9" fill="#2b1d0e"/>
+  <circle cx="56.5" cy="70.5" r="3" fill="#fff"/>
+  <circle cx="88.5" cy="70.5" r="3" fill="#fff"/>
+  <circle cx="51.8" cy="78.5" r="1.4" fill="#fff" opacity=".9"/>
+  <circle cx="83.8" cy="78.5" r="1.4" fill="#fff" opacity=".9"/>
+
+  <!-- blush -->
+  <ellipse cx="42" cy="88" rx="9" ry="5.5" fill="url(#mBlush)"/>
+  <ellipse cx="98" cy="88" rx="9" ry="5.5" fill="url(#mBlush)"/>
+
+  <!-- beak -->
+  <path d="M63 84 Q70 79 77 84 Q70 92 63 84 Z" fill="url(#mBeak)"/>
+  <path d="M64.5 84.3 Q70 86 75.5 84.3" stroke="#d96a10" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- graduation cap -->
+  <g transform="rotate(-12 74 34)">
+    <path d="M58 36 h32 v7 q-16 6 -32 0 z" fill="#3a3f63"/>
+    <path d="M74 22 L100 32 L74 42 L48 32 Z" fill="#4a5080"/>
+    <path d="M74 22 L100 32 L74 42 L48 32 Z" fill="none" stroke="#3a3f63" stroke-width="1.2" stroke-linejoin="round"/>
+    <circle cx="74" cy="32" r="2" fill="#ffcc33"/>
+    <path d="M74 32 Q92 34 96 44" stroke="#ffcc33" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M94 43 l4 0 l1 8 l-6 0 z" fill="#ffcc33"/>
+  </g>
+
+  <!-- sparkles -->
+  <path d="M120 40 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#ffffff" stroke="#f2b705" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M18 56 l1.4 3.4 3.4 1.4 -3.4 1.4 -1.4 3.4 -1.4 -3.4 -3.4 -1.4 3.4 -1.4z" fill="#ffd34d"/>
+</svg>
+      <div>
+        <span class="kru">ครูเอิน</span>
+        <h1>เช็คงานและคะแนน</h1>
+        <p class="sub">ชกต.2 และ ชกต.3</p>
+      </div>
+    </div>
+  </header>
+
+  
+
+  <!-- ===== Student view ===== -->
+  <section id="studentView">
+    <form class="card" id="lookup" autocomplete="off">
+      <p class="note" style="margin:0 0 14px">พิมพ์ชื่อและนามสกุลของตัวเองให้ตรงกับรายชื่อในห้อง ไม่ต้องใส่คำนำหน้า</p>
+      <div class="namegrid">
+        <div><label class="lbl" for="fn">ชื่อ</label><input class="num" id="fn" placeholder="ชื่อจริง" autocomplete="off"></div>
+        <div><label class="lbl" for="ln">นามสกุล</label><input class="num" id="ln" placeholder="นามสกุล" autocomplete="off"></div>
+      </div>
+      <button class="btn full" type="submit" id="lookupBtn">ดูคะแนน</button>
+      <p class="err" id="err"></p>
+      <p class="note" id="updated" style="margin:4px 0 0"></p>
+    </form>
+    <div class="card hidden" id="result"></div>
+  </section>
+
+
+</div>
+
+
+
+<script>
+(function(){
+  const SALT = "kru-earn|v1|";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const fmt = n => (Math.round(n*100)/100).toLocaleString("th-TH");
+  const show = (id, on) => $(id).classList.toggle("hidden", !on);
+  const setTheme = c => { document.body.classList.remove("theme-c2","theme-c3"); if(c) document.body.classList.add("theme-"+c); };
+
+  function normName(s){
+    s = String(s || "").normalize("NFC");
+    s = s.replace(/[\s​‌‍ ﻿.]+/g, "");
+    s = s.replace(/ํา/g, "ำ").replace(/เเ/g, "แ");
+    s = s.replace(/^(เด็กชาย|เด็กหญิง|ดช|ดญ|นางสาว|นส|นาย|นาง)/, "");
+    return s;
+  }
+  const te = new TextEncoder();
+  const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,"0")).join("");
+  const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function idFor(n){ return hex(await crypto.subtle.digest("SHA-256", te.encode(SALT + n))); }
+  async function keyFor(n){
+    const raw = await crypto.subtle.digest("SHA-256", te.encode("key|" + SALT + n));
+    return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
+  }
+
+  let DATA = null;
+  async function load(){
+    try{
+      const r = await fetch("scores.json?t=" + Date.now(), {cache:"no-store"});
+      if(!r.ok) throw new Error(r.status);
+      DATA = await r.json();
+      if(DATA.updatedAt){
+        const d = new Date(DATA.updatedAt);
+        $("updated").textContent = "อัปเดตคะแนนล่าสุด " + d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"numeric"}) + " " + d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}) + " น.";
+      }
+    }catch(e){
+      $("err").textContent = "โหลดข้อมูลคะแนนไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้ง";
+    }
+  }
+  const ready = load();
+
+  $("lookup").addEventListener("submit", async e => {
+    e.preventDefault();
+    const err = $("err"); err.textContent = "";
+    const fn = $("fn").value.trim(), ln = $("ln").value.trim();
+    if(!fn || !ln){ err.textContent = "กรุณากรอกทั้งชื่อและนามสกุล"; return; }
+    const btn = $("lookupBtn"); btn.disabled = true; btn.textContent = "กำลังค้นหา…";
+    try{
+      await ready;
+      if(!DATA){ err.textContent = "โหลดข้อมูลคะแนนไม่สำเร็จ ลองรีเฟรชหน้าอีกครั้ง"; return; }
+      if(!window.crypto || !crypto.subtle){ err.textContent = "เบราว์เซอร์นี้เปิดคะแนนไม่ได้ ลองใช้ Chrome หรือ Safari"; return; }
+      const n = normName(fn + ln);
+      const rec = DATA.students && DATA.students[await idFor(n)];
+      if(!rec){ show("result", false); setTheme(""); err.textContent = "ไม่พบชื่อนี้ ลองตรวจตัวสะกดชื่อ–นามสกุลอีกครั้ง ถ้ายังไม่เจอให้แจ้งครูเอิน"; return; }
+      const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv: unb64(rec.i)}, await keyFor(n), unb64(rec.c));
+      const g = JSON.parse(new TextDecoder().decode(plain));
+      const info = (DATA.classes || {})[g.cls] || {};
+      setTheme(g.cls);
+      renderResult({name:g.name, no:g.no, clsName:info.clsName || "", assignments:info.assignments || [], my:g.scores || {}});
+    }catch(ex){
+      err.textContent = "เปิดคะแนนไม่สำเร็จ ลองใหม่อีกครั้ง";
+    }finally{
+      btn.disabled = false; btn.textContent = "ดูคะแนน";
+    }
+  });
+
+  function catLabel(c){ return String(c || "").replace(/\s*\(\s*\d+\s*\)\s*$/, ""); }
+  function cellInfo(v){
+    if(v === undefined || v === null || v === "") return {kind:"miss"};
+    if(typeof v === "number") return {kind:"ok", n:v};
+    return {kind:"other", text:String(v)};
+  }
+  function renderResult(r){
+    const box = $("result");
+    let got=0, full=0, done=0, miss=0;
+    const items = (r.assignments || []).map(a => {
+      const info = cellInfo(r.my[a.id]);
+      if(info.kind === "ok"){ got += info.n; full += Number(a.max)||0; done++; }
+      else if(info.kind === "miss") miss++; else done++;
+      return {a, info};
+    });
+    const pct = full ? Math.min(100, Math.round(got/full*100)) : 0;
+    const initial = (String(r.name).replace(/^(นาย|นางสาว|นาง|เด็กชาย|เด็กหญิง)/,"").trim()[0]) || "?";
+    let html = `<div class="who"><div class="avatar">${esc(initial)}</div>
+        <div><h2>${esc(r.name)}</h2><div class="note">${esc(r.clsName)}${r.no ? " · เลขที่ " + esc(r.no) : ""}</div></div></div>`;
+    if(!items.length){
+      html += `<div class="empty">ยังไม่มีงานหรือคะแนนประกาศในตอนนี้</div>`;
+    } else {
+      html += `
+      <div class="stats">
+        <div class="stat"><b>${fmt(got)}<small style="font-size:.9rem;color:var(--muted)"> / ${fmt(full)}</small></b><span>คะแนนรวม (งานที่ตรวจแล้ว)</span>
+          <div class="bar"><i style="width:${pct}%"></i></div></div>
+        <div class="stat"><b style="color:var(--ok)">${done}</b><span>ส่งแล้ว จาก ${items.length} งาน</span></div>
+        <div class="stat"><b style="color:${miss?'var(--bad)':'var(--ok)'}">${miss}</b><span>${miss ? "งานค้างส่ง" : "ไม่มีงานค้าง 🎉"}</span></div>
+      </div>
+      <ul class="works">` + items.map(({a,info}, i) => {
+        const cl = catLabel(a.cat);
+        const head = cl && (i === 0 || catLabel(items[i-1].a.cat) !== cl)
+          ? `<li class="cathead">${esc(cl)}<span>เต็ม ${fmt(items.filter(x => catLabel(x.a.cat) === cl).reduce((t,x) => t + (Number(x.a.max)||0), 0))}</span></li>` : "";
+        const mx = fmt(Number(a.max)||0);
+        let chip, score;
+        if(info.kind==="ok"){ chip=`<span class="chip ok">ส่งแล้ว</span>`; score=`${fmt(info.n)} <small>/ ${mx}</small>`; }
+        else if(info.kind==="miss"){ chip=`<span class="chip miss">ยังไม่ส่ง</span>`; score=`– <small>/ ${mx}</small>`; }
+        else { chip=`<span class="chip other">${esc(info.text)}</span>`; score=`– <small>/ ${mx}</small>`; }
+        const sep = !cl && i > 0 && catLabel(items[i-1].a.cat) ? ' class="sep"' : "";
+        return head + `<li${sep}><div class="wtitle">${esc(a.title)}${a.desc ? `<small>${esc(a.desc)}</small>` : ""}</div>${chip}<div class="score">${score}</div></li>`;
+      }).join("") + `</ul>`;
+    }
+    box.innerHTML = html;
+    show("result", true);
+  }
+})();
+</script>
+</body>
+</html>
